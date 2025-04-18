@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dyno Minimum Weight Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+    table {
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    td, th {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+    }
+    input {
+      width: 80px;
+      text-align: right;
+    }
+    .label {
+      background-color: #f0f0f0;
+      font-weight: bold;
+    }
+    .result {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Dyno-Based Minimum Weight Calculator</h1>
+
+  <table>
+    <tr>
+      <th></th>
+      <th>Horsepower</th>
+      <th>Torque</th>
+    </tr>
+    <tr>
+      <td class="label">Ratio</td>
+      <td><input type="number" id="hpRatio" step="0.01" /></td>
+      <td><input type="number" id="tqRatio" step="0.01" /></td>
+    </tr>
+    <tr>
+      <td class="label">Run 1</td>
+      <td><input type="number" id="hp1" /></td>
+      <td><input type="number" id="tq1" /></td>
+    </tr>
+    <tr>
+      <td class="label">Run 2</td>
+      <td><input type="number" id="hp2" /></td>
+      <td><input type="number" id="tq2" /></td>
+    </tr>
+    <tr>
+      <td class="label">Run 3</td>
+      <td><input type="number" id="hp3" /></td>
+      <td><input type="number" id="tq3" /></td>
+    </tr>
+  </table>
+
+  <button onclick="calculate()">Calculate</button>
+
+  <div class="result" id="result"></div>
+
+  <script>
+    function isIncreasing(arr) {
+      return arr[0] < arr[1] && arr[1] < arr[2];
+    }
+
+    function calculate() {
+      const hpRatio = parseFloat(document.getElementById("hpRatio").value);
+      const tqRatio = parseFloat(document.getElementById("tqRatio").value);
+
+      const hpPulls = [
+        parseFloat(document.getElementById("hp1").value),
+        parseFloat(document.getElementById("hp2").value),
+        parseFloat(document.getElementById("hp3").value)
+      ];
+      const tqPulls = [
+        parseFloat(document.getElementById("tq1").value),
+        parseFloat(document.getElementById("tq2").value),
+        parseFloat(document.getElementById("tq3").value)
+      ];
+
+      if (hpPulls.includes(NaN) || tqPulls.includes(NaN) || isNaN(hpRatio) || isNaN(tqRatio)) {
+        alert("Please enter all fields.");
+        return;
+      }
+
+      const avgHp = hpPulls.reduce((a, b) => a + b) / hpPulls.length;
+      const avgTq = tqPulls.reduce((a, b) => a + b) / tqPulls.length;
+
+      const hpIncreasing = isIncreasing(hpPulls);
+      const tqIncreasing = isIncreasing(tqPulls);
+
+      const hpRange = Math.max(...hpPulls) - Math.min(...hpPulls);
+      const tqRange = Math.max(...tqPulls) - Math.min(...tqPulls);
+
+      const hpValid = hpRange > 2.5 || !hpIncreasing;
+      const tqValid = tqRange > 2.5 || !tqIncreasing;
+
+      const hpWeight = avgHp * hpRatio;
+      const tqWeight = avgTq * tqRatio;
+      const finalMinWeight = Math.max(hpWeight, tqWeight);
+
+      document.getElementById("result").innerHTML = `
+        <table>
+          <tr><th></th><th>Horsepower</th><th>Torque</th></tr>
+          <tr><td class="label">Average</td><td>${avgHp.toFixed(2)}</td><td>${avgTq.toFixed(2)}</td></tr>
+          <tr><td class="label">Increasing?</td><td>${hpIncreasing ? "Yes" : "No"}</td><td>${tqIncreasing ? "Yes" : "No"}</td></tr>
+          <tr><td class="label">Range</td><td>${hpRange.toFixed(2)}</td><td>${tqRange.toFixed(2)}</td></tr>
+          <tr><td class="label">Valid?</td><td>${hpValid ? "✅" : "❌"}</td><td>${tqValid ? "✅" : "❌"}</td></tr>
+          <tr><td class="label">Min Weight</td><td>${hpWeight.toFixed(2)} lbs</td><td>${tqWeight.toFixed(2)} lbs</td></tr>
+          <tr><td class="label">Final Min Weight</td><td colspan="2"><strong>${finalMinWeight.toFixed(2)} lbs</strong></td></tr>
+        </table>
+      `;
+    }
+  </script>
+
+</body>
+</html>
