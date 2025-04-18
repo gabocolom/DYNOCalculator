@@ -17,16 +17,22 @@
       padding: 10px;
       text-align: center;
     }
-    input {
-      width: 80px;
+    input, select {
+      width: 120px;
       text-align: right;
     }
     .label {
       background-color: #f0f0f0;
       font-weight: bold;
+      text-align: left;
     }
     .result {
       margin-top: 20px;
+    }
+    .preset-select {
+      width: auto;
+      margin-left: 10px;
+      text-align: left;
     }
   </style>
 </head>
@@ -41,9 +47,19 @@
       <th>Torque</th>
     </tr>
     <tr>
-      <td class="label">Ratio</td>
-      <td><input type="number" id="hpRatio" step="0.01" /></td>
-      <td><input type="number" id="tqRatio" step="0.01" /></td>
+      <td class="label">
+        Ratio
+        <select id="presetSelect" class="preset-select" onchange="setPreset()">
+          <option value="">-- Preset --</option>
+          <option value="specIron">Spec Iron</option>
+          <option value="aiNoAbs">American Iron - No ABS</option>
+          <option value="aiOemAbs">American Iron - Any OEM ABS (Except 2005+ Ford)</option>
+          <option value="aiOemAbs2010">American Iron - Any OEM ABS 2010+</option>
+          <option value="aiFordAbs">American Iron - 2005+ Ford ABS Only</option>
+        </select>
+      </td>
+      <td><input type="number" id="hpRatio" step="0.01" readonly /></td>
+      <td><input type="number" id="tqRatio" step="0.01" readonly /></td>
     </tr>
     <tr>
       <td class="label">Run 1</td>
@@ -67,6 +83,38 @@
   <div class="result" id="result"></div>
 
   <script>
+    function setPreset() {
+      const preset = document.getElementById("presetSelect").value;
+      const hpInput = document.getElementById("hpRatio");
+      const tqInput = document.getElementById("tqRatio");
+
+      switch (preset) {
+        case "specIron":
+          hpInput.value = 11.75;
+          tqInput.value = 11.25;
+          break;
+        case "aiNoAbs":
+          hpInput.value = 8.5;
+          tqInput.value = 8;
+          break;
+        case "aiOemAbs":
+          hpInput.value = 8.75;
+          tqInput.value = 8.25;
+          break;
+        case "aiOemAbs2010":
+          hpInput.value = 9;
+          tqInput.value = 8.5;
+          break;
+        case "aiFordAbs":
+          hpInput.value = 9;
+          tqInput.value = 8.5;
+          break;
+        default:
+          hpInput.value = "";
+          tqInput.value = "";
+      }
+    }
+
     function isIncreasing(arr) {
       return arr[0] < arr[1] && arr[1] < arr[2];
     }
@@ -107,17 +155,18 @@
       const tqWeight = avgTq * tqRatio;
       const finalMinWeight = Math.max(hpWeight, tqWeight);
 
-      document.getElementById("result").innerHTML = `
-        <table>
-          <tr><th></th><th>Horsepower</th><th>Torque</th></tr>
-          <tr><td class="label">Average</td><td>${avgHp.toFixed(2)}</td><td>${avgTq.toFixed(2)}</td></tr>
-          <tr><td class="label">Increasing?</td><td>${hpIncreasing ? "Yes" : "No"}</td><td>${tqIncreasing ? "Yes" : "No"}</td></tr>
-          <tr><td class="label">Range</td><td>${hpRange.toFixed(2)}</td><td>${tqRange.toFixed(2)}</td></tr>
-          <tr><td class="label">Valid?</td><td>${hpValid ? "✅" : "❌"}</td><td>${tqValid ? "✅" : "❌"}</td></tr>
-          <tr><td class="label">Min Weight</td><td>${hpWeight.toFixed(2)} lbs</td><td>${tqWeight.toFixed(2)} lbs</td></tr>
-          <tr><td class="label">Final Min Weight</td><td colspan="2"><strong>${finalMinWeight.toFixed(2)} lbs</strong></td></tr>
-        </table>
-      `;
+     document.getElementById("result").innerHTML = `
+  <table>
+    <tr><th></th><th>Horsepower</th><th>Torque</th></tr>
+    <tr><td class="label">Average</td><td>${avgHp.toFixed(0)}</td><td>${avgTq.toFixed(0)}</td></tr>
+    <tr><td class="label">Increasing?</td><td>${hpIncreasing ? "Yes" : "No"}</td><td>${tqIncreasing ? "Yes" : "No"}</td></tr>
+    <tr><td class="label">Range</td><td>${hpRange.toFixed(2)}</td><td>${tqRange.toFixed(2)}</td></tr>
+    <tr><td class="label">Valid?</td><td>${hpValid ? "✅" : "❌"}</td><td>${tqValid ? "✅" : "❌"}</td></tr>
+    <tr><td class="label">Min Weight</td><td>${hpWeight.toFixed(0)} lbs</td><td>${tqWeight.toFixed(0)} lbs</td></tr>
+    <tr><td class="label">Final Min Weight</td><td colspan="2"><strong>${finalMinWeight.toFixed(0)} lbs</strong></td></tr>
+  </table>
+`;
+
     }
   </script>
 
