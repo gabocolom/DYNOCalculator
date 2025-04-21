@@ -115,8 +115,13 @@
       }
     }
 
-    function isIncreasing(arr) {
+    function isStrictlyIncreasing(arr) {
       return arr[0] < arr[1] && arr[1] < arr[2];
+    }
+
+    function isValidPulls(arr, isIncreasing) {
+      const range = Math.max(...arr) - Math.min(...arr);
+      return isIncreasing ? range < 2 : range < 5;
     }
 
     function calculate() {
@@ -139,34 +144,40 @@
         return;
       }
 
-      const avgHp = hpPulls.reduce((a, b) => a + b) / hpPulls.length;
-      const avgTq = tqPulls.reduce((a, b) => a + b) / tqPulls.length;
+      // Calculate averages using full precision
+      const avgHp = hpPulls.reduce((a, b) => a + b, 0) / hpPulls.length;
+      const avgTq = tqPulls.reduce((a, b) => a + b, 0) / tqPulls.length;
 
-      const hpIncreasing = isIncreasing(hpPulls);
-      const tqIncreasing = isIncreasing(tqPulls);
+      // Round averages after calculating them
+      const roundedAvgHp = Math.round(avgHp * 100) / 100; // Round to 2 decimal places
+      const roundedAvgTq = Math.round(avgTq * 100) / 100; // Round to 2 decimal places
+
+      const hpIncreasing = isStrictlyIncreasing(hpPulls);
+      const tqIncreasing = isStrictlyIncreasing(tqPulls);
+
+      const hpValid = isValidPulls(hpPulls, hpIncreasing);
+      const tqValid = isValidPulls(tqPulls, tqIncreasing);
 
       const hpRange = Math.max(...hpPulls) - Math.min(...hpPulls);
       const tqRange = Math.max(...tqPulls) - Math.min(...tqPulls);
 
-      const hpValid = hpRange > 2.5 || !hpIncreasing;
-      const tqValid = tqRange > 2.5 || !tqIncreasing;
-
-      const hpWeight = avgHp * hpRatio;
-      const tqWeight = avgTq * tqRatio;
+      // Now calculate weights based on the rounded averages
+      const hpWeight = roundedAvgHp.toFixed(0) * hpRatio;
+      const tqWeight = roundedAvgTq.toFixed(0) * tqRatio;
       const finalMinWeight = Math.max(hpWeight, tqWeight);
 
-     document.getElementById("result").innerHTML = `
-  <table>
-    <tr><th></th><th>Horsepower</th><th>Torque</th></tr>
-    <tr><td class="label">Average</td><td>${avgHp.toFixed(0)}</td><td>${avgTq.toFixed(0)}</td></tr>
-    <tr><td class="label">Increasing?</td><td>${hpIncreasing ? "Yes" : "No"}</td><td>${tqIncreasing ? "Yes" : "No"}</td></tr>
-    <tr><td class="label">Range</td><td>${hpRange.toFixed(2)}</td><td>${tqRange.toFixed(2)}</td></tr>
-    <tr><td class="label">Valid?</td><td>${hpValid ? "✅" : "❌"}</td><td>${tqValid ? "✅" : "❌"}</td></tr>
-    <tr><td class="label">Min Weight</td><td>${hpWeight.toFixed(0)} lbs</td><td>${tqWeight.toFixed(0)} lbs</td></tr>
-    <tr><td class="label">Final Min Weight</td><td colspan="2"><strong>${finalMinWeight.toFixed(0)} lbs</strong></td></tr>
-  </table>
-`;
-
+      // Display the results
+      document.getElementById("result").innerHTML = `
+        <table>
+          <tr><th></th><th>Horsepower</th><th>Torque</th></tr>
+          <tr><td class="label">Average</td><td>${roundedAvgHp.toFixed(0)}</td><td>${roundedAvgTq.toFixed(0)}</td></tr>
+          <tr><td class="label">Increasing?</td><td>${hpIncreasing ? "Yes" : "No"}</td><td>${tqIncreasing ? "Yes" : "No"}</td></tr>
+          <tr><td class="label">Range</td><td>${hpRange.toFixed(2)}</td><td>${tqRange.toFixed(2)}</td></tr>
+          <tr><td class="label">Valid?</td><td>${hpValid ? "✅" : "❌"}</td><td>${tqValid ? "✅" : "❌"}</td></tr>
+          <tr><td class="label">Min Weight</td><td>${Math.round(hpWeight)}</td><td>${Math.round(tqWeight)}</td></tr>
+          <tr><td class="label">Final Min Weight</td><td colspan="2"><strong>${Math.round(finalMinWeight)}</strong></td></tr>
+        </table>
+      `;
     }
   </script>
 
