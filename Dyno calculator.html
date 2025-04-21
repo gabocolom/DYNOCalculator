@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -121,7 +121,7 @@
 
     function isValidPulls(arr, isIncreasing) {
       const range = Math.max(...arr) - Math.min(...arr);
-      return isIncreasing ? range < 2 : range < 5;
+      return isIncreasing ? range <= 2 : range <= 5;
     }
 
     function calculate() {
@@ -144,33 +144,33 @@
         return;
       }
 
-      // Calculate averages using full precision
-      const avgHp = hpPulls.reduce((a, b) => a + b, 0) / hpPulls.length;
-      const avgTq = tqPulls.reduce((a, b) => a + b, 0) / tqPulls.length;
+      // Round each pull individually before calculating average
+      const roundedHpPulls = hpPulls.map(num => Math.round(num));
+      const roundedTqPulls = tqPulls.map(num => Math.round(num));
 
-      // Round averages after calculating them
-      const roundedAvgHp = Math.round(avgHp * 100) / 100; // Round to 2 decimal places
-      const roundedAvgTq = Math.round(avgTq * 100) / 100; // Round to 2 decimal places
+      const avgHp = roundedHpPulls.reduce((a, b) => a + b, 0) / roundedHpPulls.length;
+      const avgTq = roundedTqPulls.reduce((a, b) => a + b, 0) / roundedTqPulls.length;
 
-      const hpIncreasing = isStrictlyIncreasing(hpPulls);
-      const tqIncreasing = isStrictlyIncreasing(tqPulls);
+      const roundedAvgHp = Math.round(avgHp);
+      const roundedAvgTq = Math.round(avgTq);
 
-      const hpValid = isValidPulls(hpPulls, hpIncreasing);
-      const tqValid = isValidPulls(tqPulls, tqIncreasing);
+      const hpIncreasing = isStrictlyIncreasing(roundedHpPulls);
+      const tqIncreasing = isStrictlyIncreasing(roundedTqPulls);
 
-      const hpRange = Math.max(...hpPulls) - Math.min(...hpPulls);
-      const tqRange = Math.max(...tqPulls) - Math.min(...tqPulls);
+      const hpValid = isValidPulls(roundedHpPulls, hpIncreasing);
+      const tqValid = isValidPulls(roundedTqPulls, tqIncreasing);
 
-      // Now calculate weights based on the rounded averages
-      const hpWeight = roundedAvgHp.toFixed(0) * hpRatio;
-      const tqWeight = roundedAvgTq.toFixed(0) * tqRatio;
+      const hpRange = Math.max(...roundedHpPulls) - Math.min(...roundedHpPulls);
+      const tqRange = Math.max(...roundedTqPulls) - Math.min(...roundedTqPulls);
+
+      const hpWeight = roundedAvgHp * hpRatio;
+      const tqWeight = roundedAvgTq * tqRatio;
       const finalMinWeight = Math.max(hpWeight, tqWeight);
 
-      // Display the results
       document.getElementById("result").innerHTML = `
         <table>
           <tr><th></th><th>Horsepower</th><th>Torque</th></tr>
-          <tr><td class="label">Average</td><td>${roundedAvgHp.toFixed(0)}</td><td>${roundedAvgTq.toFixed(0)}</td></tr>
+          <tr><td class="label">Average</td><td>${roundedAvgHp}</td><td>${roundedAvgTq}</td></tr>
           <tr><td class="label">Increasing?</td><td>${hpIncreasing ? "Yes" : "No"}</td><td>${tqIncreasing ? "Yes" : "No"}</td></tr>
           <tr><td class="label">Range</td><td>${hpRange.toFixed(2)}</td><td>${tqRange.toFixed(2)}</td></tr>
           <tr><td class="label">Valid?</td><td>${hpValid ? "✅" : "❌"}</td><td>${tqValid ? "✅" : "❌"}</td></tr>
