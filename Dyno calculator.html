@@ -121,7 +121,7 @@
 
     function isValidPulls(arr, isIncreasing) {
       const range = Math.max(...arr) - Math.min(...arr);
-      return isIncreasing ? range < 2 : range < 5;
+      return isIncreasing ? range <= 2 : range <= 5;
     }
 
     function calculate() {
