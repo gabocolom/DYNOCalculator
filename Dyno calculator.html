@@ -157,8 +157,8 @@
       const roundedAvgHp = Math.round(avgHp);
       const roundedAvgTq = Math.round(avgTq);
 
-      const hpIncreasing = isStrictlyIncreasing(HpPulls);
-      const tqIncreasing = isStrictlyIncreasing(TqPulls);
+      const hpIncreasing = isStrictlyIncreasing(roundedHpPulls);
+      const tqIncreasing = isStrictlyIncreasing(roundedTqPulls);
 
       const hpValid = isValidPulls(hpPulls, hpIncreasing);
       const tqValid = isValidPulls(tqPulls, tqIncreasing);
